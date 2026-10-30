@@ -1,10 +1,5 @@
 # BankCore API – Core Banking Accounts & Fund Transfer Service
 
-[![CI](https://github.com/YOUR-GITHUB-USERNAME/BankCore/actions/workflows/ci.yml/badge.svg)](https://github.com/YOUR-GITHUB-USERNAME/BankCore/actions/workflows/ci.yml)
-![.NET 10](https://img.shields.io/badge/.NET-10.0-512BD4)
-![SQL Server](https://img.shields.io/badge/SQL%20Server-2022-CC2927)
-![License](https://img.shields.io/badge/license-MIT-green)
-
 A secure REST API for the day-to-day operations of a retail bank branch: customer onboarding,
 savings/current accounts, cash deposits and withdrawals, internal fund transfers, account
 statements and a full audit trail. Built with **ASP.NET Core Web API, C#, Entity Framework Core
