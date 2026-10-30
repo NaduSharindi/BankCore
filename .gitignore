@@ -1,0 +1,25 @@
+## .NET
+bin/
+obj/
+*.user
+*.suo
+*.userprefs
+.vs/
+.vscode/
+.idea/
+*.swp
+
+## Test / coverage
+TestResults/
+coverage*.xml
+*.trx
+
+## Local databases
+*.db
+*.db-shm
+*.db-wal
+
+## Secrets
+appsettings.*.local.json
+*.pfx
+.env

@@ -1,0 +1,106 @@
+# Works in Visual Studio 2022, Rider and VS Code (REST Client extension).
+# Run the API first: dotnet run --project src/BankCore.Api
+
+@baseUrl = http://localhost:5080
+@savingsAccount = 001000000016
+@currentAccount = 001000000032
+
+### 1. Login as teller
+# @name tellerLogin
+POST {{baseUrl}}/api/v1/auth/login
+Content-Type: application/json
+
+{
+  "username": "teller",
+  "password": "Demo@12345"
+}
+
+### 2. Get account
+GET {{baseUrl}}/api/v1/accounts/{{savingsAccount}}
+Authorization: Bearer {{tellerLogin.response.body.$.token}}
+
+### 3. Cash deposit
+POST {{baseUrl}}/api/v1/accounts/{{savingsAccount}}/deposits
+Authorization: Bearer {{tellerLogin.response.body.$.token}}
+Content-Type: application/json
+
+{
+  "amount": 15000.00,
+  "narration": "Cash deposit - Colombo 02 branch"
+}
+
+### 4. Fund transfer (re-send this request: you get 200 + isReplay=true, no double debit)
+POST {{baseUrl}}/api/v1/transfers
+Authorization: Bearer {{tellerLogin.response.body.$.token}}
+Content-Type: application/json
+Idempotency-Key: 7d0f3c1e-2b5a-4a8e-9c61-000000000001
+
+{
+  "fromAccountNumber": "{{savingsAccount}}",
+  "toAccountNumber": "{{currentAccount}}",
+  "amount": 25000.50,
+  "narration": "Rent - October"
+}
+
+### 5. Statement for the last 30 days
+GET {{baseUrl}}/api/v1/accounts/{{savingsAccount}}/statement?pageSize=20
+Authorization: Bearer {{tellerLogin.response.body.$.token}}
+
+### 6. Onboard a customer
+# @name newCustomer
+POST {{baseUrl}}/api/v1/customers
+Authorization: Bearer {{tellerLogin.response.body.$.token}}
+Content-Type: application/json
+
+{
+  "fullName": "Tharindu Silva",
+  "nic": "199812345678",
+  "email": "tharindu.silva@example.com",
+  "phoneNumber": "0761234567"
+}
+
+### 7. Open a savings account for that customer
+POST {{baseUrl}}/api/v1/accounts
+Authorization: Bearer {{tellerLogin.response.body.$.token}}
+Content-Type: application/json
+
+{
+  "customerId": "{{newCustomer.response.body.$.id}}",
+  "type": "Savings",
+  "initialDeposit": 5000
+}
+
+### 8. Login as admin and freeze an account
+# @name adminLogin
+POST {{baseUrl}}/api/v1/auth/login
+Content-Type: application/json
+
+{
+  "username": "admin",
+  "password": "Demo@12345"
+}
+
+###
+POST {{baseUrl}}/api/v1/accounts/{{currentAccount}}/freeze
+Authorization: Bearer {{adminLogin.response.body.$.token}}
+
+###
+POST {{baseUrl}}/api/v1/accounts/{{currentAccount}}/unfreeze
+Authorization: Bearer {{adminLogin.response.body.$.token}}
+
+### 9. Login as auditor and read the audit trail
+# @name auditorLogin
+POST {{baseUrl}}/api/v1/auth/login
+Content-Type: application/json
+
+{
+  "username": "auditor",
+  "password": "Demo@12345"
+}
+
+###
+GET {{baseUrl}}/api/v1/audit-logs?pageSize=20
+Authorization: Bearer {{auditorLogin.response.body.$.token}}
+
+### 10. Health check (anonymous)
+GET {{baseUrl}}/health
